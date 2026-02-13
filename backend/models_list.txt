@@ -1,0 +1,81 @@
+Script started
+Configured API Key
+--- Start Listing ---
+Found 45 models
+Model: models/gemini-2.5-flash
+  - Supports generateContent
+Model: models/gemini-2.5-pro
+  - Supports generateContent
+Model: models/gemini-2.0-flash
+  - Supports generateContent
+Model: models/gemini-2.0-flash-001
+  - Supports generateContent
+Model: models/gemini-2.0-flash-exp-image-generation
+  - Supports generateContent
+Model: models/gemini-2.0-flash-lite-001
+  - Supports generateContent
+Model: models/gemini-2.0-flash-lite
+  - Supports generateContent
+Model: models/gemini-exp-1206
+  - Supports generateContent
+Model: models/gemini-2.5-flash-preview-tts
+  - Supports generateContent
+Model: models/gemini-2.5-pro-preview-tts
+  - Supports generateContent
+Model: models/gemma-3-1b-it
+  - Supports generateContent
+Model: models/gemma-3-4b-it
+  - Supports generateContent
+Model: models/gemma-3-12b-it
+  - Supports generateContent
+Model: models/gemma-3-27b-it
+  - Supports generateContent
+Model: models/gemma-3n-e4b-it
+  - Supports generateContent
+Model: models/gemma-3n-e2b-it
+  - Supports generateContent
+Model: models/gemini-flash-latest
+  - Supports generateContent
+Model: models/gemini-flash-lite-latest
+  - Supports generateContent
+Model: models/gemini-pro-latest
+  - Supports generateContent
+Model: models/gemini-2.5-flash-lite
+  - Supports generateContent
+Model: models/gemini-2.5-flash-image
+  - Supports generateContent
+Model: models/gemini-2.5-flash-preview-09-2025
+  - Supports generateContent
+Model: models/gemini-2.5-flash-lite-preview-09-2025
+  - Supports generateContent
+Model: models/gemini-3-pro-preview
+  - Supports generateContent
+Model: models/gemini-3-flash-preview
+  - Supports generateContent
+Model: models/gemini-3-pro-image-preview
+  - Supports generateContent
+Model: models/nano-banana-pro-preview
+  - Supports generateContent
+Model: models/gemini-robotics-er-1.5-preview
+  - Supports generateContent
+Model: models/gemini-2.5-computer-use-preview-10-2025
+  - Supports generateContent
+Model: models/deep-research-pro-preview-12-2025
+  - Supports generateContent
+Model: models/gemini-embedding-001
+Model: models/aqa
+Model: models/imagen-4.0-generate-preview-06-06
+Model: models/imagen-4.0-ultra-generate-preview-06-06
+Model: models/imagen-4.0-generate-001
+Model: models/imagen-4.0-ultra-generate-001
+Model: models/imagen-4.0-fast-generate-001
+Model: models/veo-2.0-generate-001
+Model: models/veo-3.0-generate-001
+Model: models/veo-3.0-fast-generate-001
+Model: models/veo-3.1-generate-preview
+Model: models/veo-3.1-fast-generate-preview
+Model: models/gemini-2.5-flash-native-audio-latest
+Model: models/gemini-2.5-flash-native-audio-preview-09-2025
+Model: models/gemini-2.5-flash-native-audio-preview-12-2025
+--- End Listing ---
+Script finished
