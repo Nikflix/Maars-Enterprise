@@ -6,17 +6,17 @@ import { Loader2 } from "lucide-react";
 
 // Components
 import { Header } from "../components/layout/Header";
-import { LandingHero } from "../components/features/LandingHero";
-import { AuthForm } from "../components/features/AuthForm";
-import { Dashboard } from "../components/features/Dashboard";
-import { PaperLibrary } from "../components/features/PaperLibrary";
-import { ResearchPlanner } from "../components/features/ResearchPlanner";
-import { ResearchEditor } from "../components/features/ResearchEditor";
+import { LandingHero } from "../components/features/landing";
+import { AuthForm } from "../components/features/auth";
+import { Dashboard } from "../components/features/dashboard";
+import { PaperLibrary } from "../components/features/library";
+import { ResearchPlanner } from "../components/features/research";
+import { ResearchEditor } from "../components/features/research";
 
 import { supabase } from "../lib/supabase";
 
 // Configuration
-const BACKEND_URL = "http://localhost:8001";
+const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 // Types
 interface Profile {
@@ -89,10 +89,17 @@ export default function Home() {
         if (user) {
             fetchPapers();
             if (appState === 'landing') setAppState('dashboard');
-        } else {
+        } else if (!loadingAuth) {
             setAppState('landing');
         }
     }, [user]);
+
+    // Re-fetch papers when navigating to library or dashboard
+    useEffect(() => {
+        if (user && (appState === 'library' || appState === 'dashboard')) {
+            fetchPapers();
+        }
+    }, [appState]);
 
     // ============================================================================
     // Auth Logic
@@ -136,11 +143,11 @@ export default function Home() {
             if (!response.ok) throw new Error("Failed to fetch papers");
             const allPapers: Paper[] = await response.json();
 
-            // My Papers: Filter by user_id and exclude public papers to avoid duplication
-            setMyPapers(allPapers.filter(p => p.user_id === user.id && !(p as any).is_public));
+            // My Papers: all papers belonging to this user (both public and private)
+            setMyPapers(allPapers.filter(p => p.user_id === user.id || !p.user_id));
 
-            // Community Papers: Filter by is_public flag
-            setCommunityPapers(allPapers.filter(p => (p as any).is_public));
+            // Community Papers: papers explicitly marked as public
+            setCommunityPapers(allPapers.filter(p => (p as any).is_public === true));
         } catch (error) {
             console.error("Fetch papers failed:", error);
         }
@@ -331,20 +338,27 @@ export default function Home() {
     const handlePublishPaper = async (paper: Paper | any) => {
         if (!user) return;
         try {
-            // Publishing creates a copy in the shared library marked as public
-            const response = await fetch(`${BACKEND_URL}/papers`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    title: paper.title,
-                    content: paper.content,
-                    user_id: user.id,
-                    is_public: true,
-                    author: `${user.first_name} ${user.last_name}`
-                }),
-            });
-
-            if (!response.ok) throw new Error("Failed to publish");
+            if (paper.id && paper.id !== "draft") {
+                // Existing paper — toggle is_public via PATCH
+                const response = await fetch(`${BACKEND_URL}/papers/${paper.id}/publish`, {
+                    method: "PATCH",
+                });
+                if (!response.ok) throw new Error("Failed to publish");
+            } else {
+                // New paper from editor — save as public
+                const response = await fetch(`${BACKEND_URL}/papers`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        title: paper.title,
+                        content: paper.content,
+                        user_id: user.id,
+                        is_public: true,
+                        author: `${user.first_name} ${user.last_name}`
+                    }),
+                });
+                if (!response.ok) throw new Error("Failed to publish");
+            }
             fetchPapers();
         } catch (error) {
             console.error("Publish failed:", error);
@@ -352,13 +366,15 @@ export default function Home() {
     };
 
     const handleUnpublishPaper = async (paperId: string) => {
-        // Since we are using a single list, unpublishing currently means deleting? 
-        // OR we need an endpoint to update. 
-        // For MVP, if "Publish" created a new copy, then "Unpublish" should delete that copy.
-        // But we don't know the ID of the published copy easily unless we track it.
-        // For now, let's just make Delete work.
-        // If the user wants to unpublish, they can delete the public paper from the library view if they see it.
-        alert("Unpublish not yet fully supported in this version. You can delete the paper.");
+        try {
+            const response = await fetch(`${BACKEND_URL}/papers/${paperId}/unpublish`, {
+                method: "PATCH",
+            });
+            if (!response.ok) throw new Error("Failed to unpublish");
+            fetchPapers();
+        } catch (error) {
+            console.error("Unpublish failed:", error);
+        }
     };
 
     const handleDeletePaper = async (id: string) => {
@@ -419,6 +435,7 @@ export default function Home() {
 
             {appState === 'auth' && (
                 <AuthForm
+                    variant="inline"
                     onLoginSuccess={(profile) => {
                         setUser(profile);
                         setAppState('dashboard');
@@ -481,6 +498,7 @@ export default function Home() {
                             created_at: new Date().toISOString()
                         });
                     }}
+                    onContentUpdate={setPaperContent}
                 />
             )}
 

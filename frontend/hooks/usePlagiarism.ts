@@ -1,8 +1,45 @@
 
 import { useState, useCallback, useRef } from 'react';
 
-interface PlagiarismResult {
+interface AiDetectionResult {
+    score: number;
+    status: 'low' | 'medium' | 'high';
+    reasoning: string;
+    indicators: string[];
+}
+
+interface SemanticSimilarityResult {
+    score: number;
+    status: 'low' | 'medium' | 'high';
+    similar_sources: Array<{
+        url: string;
+        title: string;
+        similarity: number;
+        matched_concept: string;
+    }>;
+}
+
+interface ParaphraseDetectionResult {
+    score: number;
+    status: 'low' | 'medium' | 'high';
+    flagged_passages: Array<{
+        paper_text: string;
+        source_text: string;
+        source_url: string;
+        source_title: string;
+        confidence: number;
+    }>;
+}
+
+export interface ContentAnalysisResult {
+    ai_detection: AiDetectionResult;
+    semantic_similarity: SemanticSimilarityResult;
+    paraphrase_detection: ParaphraseDetectionResult;
+    overall_score: number;
+    overall_status: 'low' | 'medium' | 'high';
+    // backward compat
     similarity_score: number;
+    status: 'low' | 'medium' | 'high';
     checked_sentences: number;
     matches_found: number;
     matched_sources: Array<{
@@ -10,27 +47,25 @@ interface PlagiarismResult {
         title: string;
         matched_text: string;
     }>;
-    status: 'low' | 'medium' | 'high';
 }
 
 interface UsePlagiarismReturn {
     isScanning: boolean;
     progress: number;
-    result: PlagiarismResult | null;
+    result: ContentAnalysisResult | null;
     error: string | null;
     startScan: (paperId: string, content: string) => Promise<void>;
     resetScan: () => void;
 }
 
-const BACKEND_URL = 'http://localhost:8001';
+const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 export const usePlagiarism = (): UsePlagiarismReturn => {
     const [isScanning, setIsScanning] = useState(false);
     const [progress, setProgress] = useState(0);
-    const [result, setResult] = useState<PlagiarismResult | null>(null);
+    const [result, setResult] = useState<ContentAnalysisResult | null>(null);
     const [error, setError] = useState<string | null>(null);
 
-    // To clear interval on component unmount or reset
     const pollInterval = useRef<NodeJS.Timeout | null>(null);
 
     const resetScan = useCallback(() => {
@@ -62,7 +97,6 @@ export const usePlagiarism = (): UsePlagiarismReturn => {
                 try {
                     const statusRes = await fetch(`${BACKEND_URL}/api/plagiarism/status/${jobId}`);
                     if (!statusRes.ok) {
-                        // If 404/500, stop polling
                         throw new Error('Failed to fetch status');
                     }
 
@@ -71,7 +105,6 @@ export const usePlagiarism = (): UsePlagiarismReturn => {
                     if (statusData.status === 'processing' || statusData.status === 'pending') {
                         setProgress(statusData.progress || 0);
                     } else if (statusData.status === 'completed') {
-                        // 3. Fetch Result
                         if (pollInterval.current) clearInterval(pollInterval.current);
 
                         const resultRes = await fetch(`${BACKEND_URL}/api/plagiarism/result/${jobId}`);
@@ -89,7 +122,7 @@ export const usePlagiarism = (): UsePlagiarismReturn => {
                     setError(err.message);
                     setIsScanning(false);
                 }
-            }, 2000); // Poll every 2 seconds
+            }, 2000);
 
         } catch (err: any) {
             setError(err.message);

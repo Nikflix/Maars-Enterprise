@@ -1,6 +1,6 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-# dependencies
+# --- Node / JavaScript / Next.js ---
 node_modules/
 /.pnp
 .pnp.*
@@ -10,38 +10,64 @@ node_modules/
 !.yarn/releases
 !.yarn/versions
 
-# testing
 /coverage
-
-# next.js
 .next/
 out/
-
-# production
 build/
+.vercel
+*.tsbuildinfo
+next-env.d.ts
 
-# misc
-.DS_Store
-*.pem
-
-# debug
+# debug / logging
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
+build.log
 
-# env files (can opt-in for committing if needed)
-.env*
+# --- Python / FastAPI ---
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
 
-# vercel
-.vercel
+# Environments
+.env.backend
+.venv/
+venv/
+ENV/
+env.bak/
+venv.bak/
 
-# typescript
-*.tsbuildinfo
-next-env.d.ts
+# Testing / Profiling
+.pytest_cache/
+htmlcov/
+.tox/
+.coverage
+.coverage.*
 
-# Large files
+# --- Environment files ---
+# (can opt-in for committing if needed)
+.env
+.env.*
+!.env.example
+
+# --- OS / IDE / Misc ---
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+.vscode/
+.idea/
+*.pem
+
+# Large / Generated files
 *.zip
 *.log
 backend.zip
 app.zip
+*.pdf
+*.docx

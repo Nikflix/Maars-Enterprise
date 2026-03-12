@@ -2,13 +2,20 @@
 import os
 import sys
 import google.generativeai as genai
+from dotenv import load_dotenv
+
+load_dotenv()
 
 output_file = "models_list.txt"
 with open(output_file, "w") as f:
     f.write("Script started\n")
     try:
-        os.environ["GOOGLE_API_KEY"] = "AIzaSyBPrr4YdnWBB9afPLqLsCsqKnDlVZwKvG4"
-        genai.configure(api_key=os.environ["GOOGLE_API_KEY"])
+        api_key = os.getenv("GOOGLE_API_KEY")
+        if not api_key:
+            f.write("Error: GOOGLE_API_KEY not found in environment\n")
+            sys.exit(1)
+            
+        genai.configure(api_key=api_key)
         f.write("Configured API Key\n")
 
         f.write("--- Start Listing ---\n")
